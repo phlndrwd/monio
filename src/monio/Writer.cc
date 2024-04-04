@@ -25,7 +25,7 @@ monio::Writer::Writer(const eckit::mpi::Comm& mpiCommunicator,
                       const std::string& filePath) :
     mpiCommunicator_(mpiCommunicator),
     mpiRankOwner_(mpiRankOwner) {
-  oops::Log::debug() << "Writer::Writer()" << std::endl;
+  oops::Log::trace() << "Writer::Writer()" << std::endl;
   openFile(filePath);
 }
 
@@ -33,11 +33,11 @@ monio::Writer::Writer(const eckit::mpi::Comm& mpiCommunicator,
                       const int mpiRankOwner) :
     mpiCommunicator_(mpiCommunicator),
     mpiRankOwner_(mpiRankOwner) {
-  oops::Log::debug() << "Writer::Writer()" << std::endl;
+  oops::Log::trace() << "Writer::Writer()" << std::endl;
 }
 
 void monio::Writer::openFile(const std::string& filePath) {
-  oops::Log::debug() << "Writer::openFile() \"" << filePath << "\"..." << std::endl;
+  oops::Log::trace() << "Writer::openFile() \"" << filePath << "\"..." << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     if (filePath.size() != 0) {
       try {
@@ -51,7 +51,7 @@ void monio::Writer::openFile(const std::string& filePath) {
 }
 
 void monio::Writer::closeFile() {
-  oops::Log::debug() << "Writer::closeFile()" << std::endl;
+  oops::Log::trace() << "Writer::closeFile()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     if (isOpen() == true) {
       getFile().close();
@@ -65,14 +65,14 @@ bool monio::Writer::isOpen() {
 }
 
 void monio::Writer::writeMetadata(const Metadata& metadata) {
-  oops::Log::debug() << "Writer::writeMetadata()" << std::endl;
+  oops::Log::trace() << "Writer::writeMetadata()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     getFile().writeMetadata(metadata);
   }
 }
 
 void monio::Writer::writeData(const FileData& fileData) {
-  oops::Log::debug() << "Writer::writeVariablesData()" << std::endl;
+  oops::Log::trace() << "Writer::writeVariablesData()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     const std::map<std::string, std::shared_ptr<DataContainerBase>>& dataContainerMap =
                                                                 fileData.getData().getContainers();
@@ -110,7 +110,7 @@ void monio::Writer::writeData(const FileData& fileData) {
 }
 
 monio::File& monio::Writer::getFile() {
-  oops::Log::debug() << "Writer::getFile()" << std::endl;
+  oops::Log::trace() << "Writer::getFile()" << std::endl;
   if (isOpen() == false) {
     utils::throwException("Writer::getFile()> File has not been initialised...");
   }
