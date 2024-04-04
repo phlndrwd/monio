@@ -25,7 +25,7 @@
 monio::AtlasWriter::AtlasWriter(const eckit::mpi::Comm& mpiCommunicator, const int mpiRankOwner):
     mpiCommunicator_(mpiCommunicator),
     mpiRankOwner_(mpiRankOwner) {
-  oops::Log::debug() << "AtlasWriter::AtlasWriter()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::AtlasWriter()" << std::endl;
 }
 
 void monio::AtlasWriter::populateFileDataWithField(FileData& fileData,
@@ -34,7 +34,7 @@ void monio::AtlasWriter::populateFileDataWithField(FileData& fileData,
                                              const std::string& writeName,
                                              const std::string& vertConfigName,
                                              const bool isLfricConvention) {
-  oops::Log::debug() << "AtlasWriter::populateFileDataWithField()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateFileDataWithField()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     std::vector<size_t>& lfricAtlasMap = fileData.getLfricAtlasMap();
     // Create dimensions
@@ -54,7 +54,7 @@ void monio::AtlasWriter::populateFileDataWithField(FileData& fileData,
 void monio::AtlasWriter::populateFileDataWithField(FileData& fileData,
                                              const atlas::Field& field,
                                              const std::string& writeName) {
-  oops::Log::debug() << "AtlasWriter::populateFileDataWithField()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateFileDataWithField()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     Metadata& metadata = fileData.getMetadata();
     Data& data = fileData.getData();
@@ -102,7 +102,7 @@ void monio::AtlasWriter::populateMetadataWithField(Metadata& metadata,
                                              const consts::FieldMetadata& fieldMetadata,
                                              const std::string& varName,
                                              const std::string& vertConfigName) {
-  oops::Log::debug() << "AtlasWriter::populateMetadataWithField()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateMetadataWithField()" << std::endl;
   int type = utilsatlas::atlasTypeToMonioEnum(field.datatype());
   std::shared_ptr<monio::Variable> var = std::make_shared<Variable>(varName, type);
   // Variable dimensions
@@ -134,7 +134,7 @@ void monio::AtlasWriter::populateMetadataWithField(Metadata& metadata,
 void monio::AtlasWriter::populateMetadataWithField(Metadata& metadata,
                                              const atlas::Field& field,
                                              const std::string& varName) {
-  oops::Log::debug() << "AtlasWriter::populateMetadataWithField()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateMetadataWithField()" << std::endl;
   int type = utilsatlas::atlasTypeToMonioEnum(field.datatype());
   std::shared_ptr<monio::Variable> var = std::make_shared<Variable>(varName, type);
   // Variable dimensions
@@ -146,7 +146,7 @@ void monio::AtlasWriter::populateDataWithField(Data& data,
                                          const atlas::Field& field,
                                          const std::vector<size_t>& lfricToAtlasMap,
                                          const std::string& fieldName) {
-  oops::Log::debug() << "AtlasWriter::populateDataWithField()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateDataWithField()" << std::endl;
   std::shared_ptr<DataContainerBase> dataContainer = nullptr;
   populateDataContainerWithField(dataContainer, field, lfricToAtlasMap, fieldName);
   data.addContainer(dataContainer);
@@ -155,7 +155,7 @@ void monio::AtlasWriter::populateDataWithField(Data& data,
 void monio::AtlasWriter::populateDataWithField(Data& data,
                                          const atlas::Field& field,
                                          const std::vector<atlas::idx_t>& dimensions) {
-  oops::Log::debug() << "AtlasWriter::populateDataWithField()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateDataWithField()" << std::endl;
   std::shared_ptr<DataContainerBase> dataContainer = nullptr;
   populateDataContainerWithField(dataContainer, field, dimensions);
   data.addContainer(dataContainer);
@@ -166,7 +166,7 @@ void monio::AtlasWriter::populateDataContainerWithField(
                                const atlas::Field& field,
                                const std::vector<size_t>& lfricToAtlasMap,
                                const std::string& fieldName) {
-  oops::Log::debug() << "AtlasWriter::populateDataContainerWithField()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateDataContainerWithField()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     atlas::array::DataType atlasType = field.datatype();
     atlas::idx_t fieldSize = utilsatlas::getGlobalDataSize(field);
@@ -217,7 +217,7 @@ void monio::AtlasWriter::populateDataContainerWithField(
                                      std::shared_ptr<monio::DataContainerBase>& dataContainer,
                                const atlas::Field& field,
                                const std::vector<atlas::idx_t>& dimensions) {
-  oops::Log::debug() << "AtlasWriter::populateDataContainerWithField()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateDataContainerWithField()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     std::string fieldName = field.name();
     atlas::array::DataType atlasType = field.datatype();
@@ -269,7 +269,7 @@ template<typename T>
 void monio::AtlasWriter::populateDataVec(std::vector<T>& dataVec,
                                    const atlas::Field& field,
                                    const std::vector<size_t>& lfricToAtlasMap) {
-  oops::Log::debug() << "AtlasWriter::populateDataVec() " << field.name() << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateDataVec() " << field.name() << std::endl;
   atlas::idx_t numLevels = field.shape(consts::eVertical);
   if ((lfricToAtlasMap.size() * numLevels) != dataVec.size()) {
     Monio::get().closeFiles();
@@ -299,7 +299,7 @@ template<typename T>
 void monio::AtlasWriter::populateDataVec(std::vector<T>& dataVec,
                                    const atlas::Field& field,
                                    const std::vector<atlas::idx_t>& dimensions) {
-  oops::Log::debug() << "AtlasWriter::populateDataVec()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::populateDataVec()" << std::endl;
   auto fieldView = atlas::array::make_view<T, 2>(field);
   for (atlas::idx_t i = 0; i < dimensions[consts::eHorizontal]; ++i) {
     for (atlas::idx_t j = 0; j < dimensions[consts::eVertical]; ++j) {
@@ -322,7 +322,7 @@ template void monio::AtlasWriter::populateDataVec<int>(std::vector<int>& dataVec
 atlas::Field monio::AtlasWriter::getWriteField(atlas::Field& field,
                                          const std::string& writeName,
                                          const bool noFirstLevel) {
-  oops::Log::debug() << "AtlasWriter::getWriteField()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::getWriteField()" << std::endl;
   atlas::FunctionSpace functionSpace = field.functionspace();
   atlas::array::DataType atlasType = field.datatype();
   if (atlasType != atlasType.KIND_REAL64 &&
@@ -368,7 +368,7 @@ template<typename T>
 atlas::Field monio::AtlasWriter::copySurfaceLevel(const atlas::Field& inputField,
                               const atlas::FunctionSpace& functionSpace,
                               const atlas::util::Config& atlasOptions) {
-  oops::Log::debug() << "AtlasWriter::copySurfaceLevel()" << std::endl;
+  oops::Log::trace() << "AtlasWriter::copySurfaceLevel()" << std::endl;
   atlas::Field copiedField = functionSpace.createField<T>(atlasOptions);
   auto copiedFieldView = atlas::array::make_view<T, 2>(copiedField);
   auto inputFieldView = atlas::array::make_view<T, 2>(inputField);

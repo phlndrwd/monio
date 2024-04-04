@@ -29,7 +29,7 @@ namespace  {
 }
 
 monio::Monio& monio::Monio::get() {
-  oops::Log::debug() << "Monio::get()" << std::endl;
+  oops::Log::trace() << "Monio::get()" << std::endl;
   if (this_ == nullptr) {
     this_ = new Monio(atlas::mpi::comm(), consts::kMPIRankOwner);
   }
@@ -47,7 +47,7 @@ void monio::Monio::readState(atlas::FieldSet& localFieldSet,
                             const std::vector<consts::FieldMetadata>& fieldMetadataVec,
                             const std::string& filePath,
                             const util::DateTime& dateTime) {
-  oops::Log::debug() << "Monio::readState()" << std::endl;
+  oops::Log::trace() << "Monio::readState()" << std::endl;
   if (localFieldSet.size() == 0) {
     Monio::get().closeFiles();
     utils::throwException("Monio::readState()> localFieldSet has zero fields...");
@@ -72,7 +72,7 @@ void monio::Monio::readState(atlas::FieldSet& localFieldSet,
               readName = fieldMetadata.jediName;
             }
             if (utils::findInVector(consts::kMissingVariableNames, readName) == false) {
-              oops::Log::debug() << "Monio::readState() processing data for> \"" <<
+              oops::Log::trace() << "Monio::readState() processing data for> \"" <<
                                     readName << "\"..." << std::endl;
               // Read fields into memory
               reader_.readDatumAtTime(fileData, readName, dateTime,
@@ -107,7 +107,7 @@ void monio::Monio::readState(atlas::FieldSet& localFieldSet,
 void monio::Monio::readIncrements(atlas::FieldSet& localFieldSet,
                             const std::vector<consts::FieldMetadata>& fieldMetadataVec,
                             const std::string& filePath) {
-  oops::Log::debug() << "Monio::readIncrements()" << std::endl;
+  oops::Log::trace() << "Monio::readIncrements()" << std::endl;
   if (localFieldSet.size() == 0) {
     Monio::get().closeFiles();
     utils::throwException("Monio::readIncrements()> localFieldSet has zero fields...");
@@ -132,7 +132,7 @@ void monio::Monio::readIncrements(atlas::FieldSet& localFieldSet,
             if (variableConvention == consts::eJediConvention) {
               readName = fieldMetadata.jediName;
             }
-            oops::Log::debug() << "Monio::readIncrements() processing data for> \"" <<
+            oops::Log::trace() << "Monio::readIncrements() processing data for> \"" <<
                                   readName << "\"..." << std::endl;
             // Read fields into memory
             reader_.readFullDatum(fileData, readName);
@@ -164,7 +164,7 @@ void monio::Monio::writeIncrements(const atlas::FieldSet& localFieldSet,
                                    const std::vector<consts::FieldMetadata>& fieldMetadataVec,
                                    const std::string& filePath,
                                    const bool isLfricConvention) {
-  oops::Log::debug() << "Monio::writeIncrements()" << std::endl;
+  oops::Log::trace() << "Monio::writeIncrements()" << std::endl;
   if (localFieldSet.size() == 0) {
     Monio::get().closeFiles();
     utils::throwException("Monio::writeIncrements()> localFieldSet has zero fields...");
@@ -197,7 +197,7 @@ void monio::Monio::writeIncrements(const atlas::FieldSet& localFieldSet,
             utils::throwException("Monio::writeIncrements()> "
                                   "Field metadata configuration error...");
           }
-          oops::Log::debug() << "Monio::writeIncrements() processing data for> \"" <<
+          oops::Log::trace() << "Monio::writeIncrements() processing data for> \"" <<
                                 writeName << "\"..." << std::endl;
 
           atlasWriter_.populateFileDataWithField(fileData,
@@ -227,7 +227,7 @@ void monio::Monio::writeState(const atlas::FieldSet& localFieldSet,
                               const std::vector<consts::FieldMetadata>& fieldMetadataVec,
                               const std::string& filePath,
                               const bool isLfricConvention) {
-  oops::Log::debug() << "Monio::writeState()" << std::endl;
+  oops::Log::trace() << "Monio::writeState()" << std::endl;
   if (localFieldSet.size() == 0) {
     Monio::get().closeFiles();
     utils::throwException("Monio::writeState()> localFieldSet has zero fields...");
@@ -259,7 +259,7 @@ void monio::Monio::writeState(const atlas::FieldSet& localFieldSet,
             Monio::get().closeFiles();
             utils::throwException("Monio::writeState()> Field metadata configuration error...");
           }
-          oops::Log::debug() << "Monio::writeState() processing data for> \"" <<
+          oops::Log::trace() << "Monio::writeState() processing data for> \"" <<
                                   writeName << "\"..." << std::endl;
 
           atlasWriter_.populateFileDataWithField(fileData,
@@ -287,7 +287,7 @@ void monio::Monio::writeState(const atlas::FieldSet& localFieldSet,
 
 void monio::Monio::writeFieldSet(const atlas::FieldSet& localFieldSet,
                                  const std::string& filePath) {
-  oops::Log::debug() << "Monio::writeFieldSet()" << std::endl;
+  oops::Log::trace() << "Monio::writeFieldSet()" << std::endl;
   if (localFieldSet.size() == 0) {
     Monio::get().closeFiles();
     utils::throwException("Monio::writeFieldSet()> localFieldSet has zero fields...");
@@ -318,7 +318,7 @@ void monio::Monio::writeFieldSet(const atlas::FieldSet& localFieldSet,
 }
 
 void monio::Monio::closeFiles() {
-  oops::Log::debug() << "Monio::closeFiles()" << std::endl;
+  oops::Log::trace() << "Monio::closeFiles()" << std::endl;
   reader_.closeFile();
   writer_.closeFile();
 }
@@ -326,7 +326,7 @@ void monio::Monio::closeFiles() {
 int monio::Monio::initialiseFile(const atlas::Grid& grid,
                                  const std::string& filePath,
                                  bool doCreateDateTimes) {
-  oops::Log::debug() << "Monio::initialiseFile()" << std::endl;
+  oops::Log::trace() << "Monio::initialiseFile()" << std::endl;
   int variableConvention = consts::eLfricConvention;  // LFRic convention is default
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     FileData& fileData = createFileData(grid.name(), filePath);
@@ -361,12 +361,12 @@ monio::Monio::Monio(const eckit::mpi::Comm& mpiCommunicator,
       writer_(mpiCommunicator, mpiRankOwner_),
       atlasReader_(mpiCommunicator, mpiRankOwner_),
       atlasWriter_(mpiCommunicator, mpiRankOwner_) {
-  oops::Log::debug() << "Monio::Monio()" << std::endl;
+  oops::Log::trace() << "Monio::Monio()" << std::endl;
 }
 
 monio::FileData& monio::Monio::createFileData(const std::string& gridName,
                                               const std::string& filePath) {
-  oops::Log::debug() << "Monio::createFileData()" << std::endl;
+  oops::Log::trace() << "Monio::createFileData()" << std::endl;
   auto it = filesData_.find(gridName);
 
   if (it != filesData_.end()) {
@@ -378,7 +378,7 @@ monio::FileData& monio::Monio::createFileData(const std::string& gridName,
 }
 
 monio::FileData monio::Monio::getFileData(const std::string& gridName) {
-  oops::Log::debug() << "Monio::getFileData()" << std::endl;
+  oops::Log::trace() << "Monio::getFileData()" << std::endl;
   auto it = filesData_.find(gridName);
   if (it != filesData_.end()) {
     return FileData(it->second);
@@ -387,7 +387,7 @@ monio::FileData monio::Monio::getFileData(const std::string& gridName) {
 }
 
 void monio::Monio::createLfricAtlasMap(FileData& fileData, const atlas::CubedSphereGrid& grid) {
-  oops::Log::debug() << "Monio::createLfricAtlasMap()" << std::endl;
+  oops::Log::trace() << "Monio::createLfricAtlasMap()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     if (fileData.getLfricAtlasMap().size() == 0) {
       reader_.readFullData(fileData, consts::kLfricCoordVarNames);
@@ -403,7 +403,7 @@ void monio::Monio::createLfricAtlasMap(FileData& fileData, const atlas::CubedSph
 void monio::Monio::createDateTimes(FileData& fileData,
                              const std::string& timeVarName,
                              const std::string& timeOriginName) {
-  oops::Log::debug() << "Monio::createDateTimes()" << std::endl;
+  oops::Log::trace() << "Monio::createDateTimes()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     if (fileData.getDateTimes().size() == 0) {
       std::shared_ptr<Variable> timeVar = fileData.getMetadata().getVariable(timeVarName);
@@ -436,7 +436,7 @@ void monio::Monio::createDateTimes(FileData& fileData,
 }
 
 void monio::Monio::cleanFileData(FileData& fileData) {
-  oops::Log::debug() << "Monio::cleanFileData()" << std::endl;
+  oops::Log::trace() << "Monio::cleanFileData()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     fileData.getMetadata().clearGlobalAttributes();
     fileData.getMetadata().deleteDimension(std::string(consts::kTimeDimName));
