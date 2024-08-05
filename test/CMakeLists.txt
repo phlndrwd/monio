@@ -67,18 +67,17 @@ foreach(FILENAME ${monio_testinput})
                            ${CMAKE_CURRENT_BINARY_DIR}/${FILENAME})
 endforeach(FILENAME)
 
-if(NOT IS_DIRECTORY "${MONIO_TESTFILES_DIR}")
-  message(WARNING "MONIO_TESTFILES_DIR=${MONIO_TESTFILES_DIR}: no such directory")
-  return()
-endif()
-
-
 ecbuild_add_test(TARGET monio_coding_norms
                  TYPE SCRIPT
                  COMMAND ${CMAKE_BINARY_DIR}/bin/monio_cpplint.py
                  ARGS --quiet --recursive
                        ${PROJECT_SOURCE_DIR}/src
                        ${PROJECT_SOURCE_DIR}/test)
+
+if(NOT IS_DIRECTORY "${MONIO_TESTFILES_DIR}")
+  message(WARNING "MONIO_TESTFILES_DIR=${MONIO_TESTFILES_DIR}: no such directory")
+  return()
+endif()
 
 ecbuild_add_test(TARGET  test_monio_fieldset_write
                  SOURCES mains/TestFieldSetWrite.cc
