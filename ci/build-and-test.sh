@@ -4,7 +4,7 @@
 #
 # shellcheck disable=SC2317
 # shellcheck source=/dev/null
-set -euo pipefail
+set -euxo pipefail
 
 finally() {
     trap '' ERR
@@ -19,16 +19,16 @@ finally() {
     fi
 }
 
-# -- HERE is /usr/local/src/<REPONAME>/pr-<#> (cf ../.github/workflow/ci.yml)
+# -- HERE is /var/tmp/<REPONAME>/pr-<#> (cf ../.github/workflow/ci.yml)
 HERE="$(cd "$(dirname "$0")" && pwd)"
 THIS="$(basename "$0")"
 NPROC=${NPROC:-$(nproc)}
 WORKD="$(mktemp -d "${THIS}-XXXXXX" -t)"
 BASE="${HERE%/*}"
 TESTDIR="${BASE##*/}"
-export CI_TESTS=${CI_TESTS:-0}
 export OMPI_ALLOW_RUN_AS_ROOT=1
 export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+export CI_TESTS=${CI_TESTS:-0}
 CI_TESTS=${CI_TESTS//$'\r'}  # remove those pesky invisible EOL characters
 
 trap finally ERR EXIT
