@@ -28,12 +28,13 @@ jobs:
         run: |
           rm -fr ./${{ env.PR }} || true
           ls -la ./
-      - name: Checkout current
+      - name: Checkout ${{ env.REPO }}
         uses: actions/checkout@v4
         with:
           path: ./${{ env.PR }}/${{ env.REPO }}
       - name: Initiate bundle
-        run: cp ./${{ env.PR }}/${{ env.REPO }}/ci/* ./${{ env.PR }}/
+        working-directory: ./${{ env.PR }}
+        run: ln -sf ./${{ env.REPO }}/ci/* .
 
       - name: Checkout jedicmake
         uses: actions/checkout@v4
@@ -60,7 +61,7 @@ jobs:
         shell: bash
         run: |
           az acr login --name ngmssboxjediacr
-          ln -sf /testdata/mobb-data ${{ github.workspace }}/mobb-data
+          ln -sf /testdata/mobb-data -t ${{ github.workspace }}
 
           docker run --rm \
             --name ${REPO}_${PR}_${GITHUB_SHA::7} \
@@ -68,7 +69,7 @@ jobs:
             --volume ${{ github.workspace }}/mobb-data:${MOBB_DATA} \
             --env CI_TESTS=1 \
             --workdir=${WORKDIR} \
-            --entrypoint=/usr/local/src/${REPO}/${PR}/build-and-test.sh \
+            --entrypoint=${WORKDIR}/build-and-test.sh \
             'ngmssboxjediacr.azurecr.io/jedibase:alma9'
 
       - name: Cleanup
