@@ -51,7 +51,7 @@ jobs:
           token: ${{ secrets.GH_PAT }}
       - name: Check build-group for oops
         if: github.event_name == 'pull_request'
-        run: ./${{ env.PR }}/get-ref-branch ./${{ env.PR }}/oops
+        run: ./${{ env.PR }}/check-build-group.sh ./${{ env.PR }}/oops
 
       - name: Build and Test
         env:
