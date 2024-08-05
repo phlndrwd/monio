@@ -20,6 +20,13 @@ ecbuild_add_resources(TARGET       monio_test_scripts
                       SOURCES_PACK ${monio_test_input}
                                    ${PROJECT_SOURCE_DIR}/test/utils/cpplint.py)
 
+# Set-up coding norms
+foreach(FILENAME ${monio_testinput})
+execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+                        ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
+                        ${CMAKE_CURRENT_BINARY_DIR}/${FILENAME})
+endforeach(FILENAME)
+
 if(NOT DEFINED MONIO_TESTFILES_DIR)
   if(DEFINED ENV{MONIO_TESTFILES_DIR})
     set(MONIO_TESTFILES_DIR "$ENV{MONIO_TESTFILES_DIR}")
@@ -46,7 +53,9 @@ if(IS_DIRECTORY "${MONIO_TESTFILES_DIR}")
     SYMBOLIC
   )
 else()
-  message(WARNING "MONIO_TESTFILES_DIR=${MONIO_TESTFILES_DIR}: no such directory")
+  message(WARNING
+    "MONIO_TESTFILES_DIR=${MONIO_TESTFILES_DIR}: no such directory. \
+    Skipping tests that require input data.")
   return()
 endif()
 
@@ -57,12 +66,6 @@ list(APPEND monio_testinput
   testinput/state_basic.yaml
   testinput/state_full.yaml
 )
-
-foreach(FILENAME ${monio_testinput})
-  execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-                           ${CMAKE_CURRENT_SOURCE_DIR}/${FILENAME}
-                           ${CMAKE_CURRENT_BINARY_DIR}/${FILENAME})
-endforeach(FILENAME)
 
 ecbuild_add_test(TARGET monio_coding_norms
                  TYPE SCRIPT
