@@ -4,7 +4,7 @@
 #
 # shellcheck disable=SC2317
 # shellcheck source=/dev/null
-set -euxo pipefail
+set -euo pipefail
 
 finally() {
     trap '' ERR
@@ -63,8 +63,8 @@ cmake --build . -j "${NPROC}"
 
 # -- Test
 case "$CI_TESTS" in
-    0) ctest -j"${NPROC}" --test-dir "${TESTDIR}" --output-on-failure -R 'coding_norms' ;;
-    1) ctest -j"${NPROC}" --test-dir "${TESTDIR}" --output-on-failure ;;
+    0) ctest --test-dir "${TESTDIR}" --output-on-failure -R 'coding_norms' ;;
+    1) ctest --test-dir "${TESTDIR}" --output-on-failure ;;
     *) echo "** Error: CI_TESTS=$CI_TESTS is not a valid option **";
        exit 1 ;;
 esac

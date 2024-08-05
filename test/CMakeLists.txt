@@ -75,7 +75,9 @@ ecbuild_add_test(TARGET monio_coding_norms
                        ${PROJECT_SOURCE_DIR}/test)
 
 if(NOT IS_DIRECTORY "${MONIO_TESTFILES_DIR}")
-  message(WARNING "MONIO_TESTFILES_DIR=${MONIO_TESTFILES_DIR}: no such directory")
+  message(WARNING
+    "MONIO_TESTFILES_DIR=${MONIO_TESTFILES_DIR}: no such directory.\
+    Skipping tests that require test files.")
   return()
 endif()
 
