@@ -29,7 +29,7 @@ monio::Reader::Reader(const eckit::mpi::Comm& mpiCommunicator,
                       const std::string& filePath):
     mpiCommunicator_(mpiCommunicator),
     mpiRankOwner_(mpiRankOwner) {
-  oops::Log::debug() << "Reader::Reader()" << std::endl;
+  oops::Log::trace() << "Reader::Reader()" << std::endl;
   openFile(filePath);
 }
 
@@ -37,11 +37,11 @@ monio::Reader::Reader(const eckit::mpi::Comm& mpiCommunicator,
                       const int mpiRankOwner):
     mpiCommunicator_(mpiCommunicator),
     mpiRankOwner_(mpiRankOwner) {
-  oops::Log::debug() << "Reader::Reader()" << std::endl;
+  oops::Log::trace() << "Reader::Reader()" << std::endl;
 }
 
 void monio::Reader::openFile(const std::string& filePath) {
-  oops::Log::debug() << "Reader::openFile()" << std::endl;
+  oops::Log::trace() << "Reader::openFile()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     if (filePath.size() != 0) {
       try {
@@ -55,7 +55,7 @@ void monio::Reader::openFile(const std::string& filePath) {
 }
 
 void monio::Reader::closeFile() {
-  oops::Log::debug() << "Reader::closeFile()" << std::endl;
+  oops::Log::trace() << "Reader::closeFile()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     if (isOpen() == true) {
       getFile().close();
@@ -69,7 +69,7 @@ bool monio::Reader::isOpen() {
 }
 
 void monio::Reader::readMetadata(FileData& fileData) {
-  oops::Log::debug() << "Reader::readMetadata()" << std::endl;
+  oops::Log::trace() << "Reader::readMetadata()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     getFile().readMetadata(fileData.getMetadata());
   }
@@ -79,7 +79,7 @@ void monio::Reader::readDatumAtTime(FileData& fileData,
                                    const std::string& varName,
                                    const util::DateTime& dateToRead,
                                    const std::string& timeDimName) {
-  oops::Log::debug() << "Reader::readDatumAtTime()" << std::endl;
+  oops::Log::trace() << "Reader::readDatumAtTime()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     size_t timeStep = findTimeStep(fileData, dateToRead);
     readDatumAtTime(fileData, varName, timeStep, timeDimName);
@@ -90,7 +90,7 @@ void monio::Reader::readDatumAtTime(FileData& fileData,
                                    const std::string& varName,
                                    const size_t timeStep,
                                    const std::string& timeDimName) {
-  oops::Log::debug() << "Reader::readDatumAtTime()" << std::endl;
+  oops::Log::trace() << "Reader::readDatumAtTime()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     if (fileData.getData().isContainerPresent(varName) == false) {
       std::shared_ptr<Variable> variable = fileData.getMetadata().getVariable(varName);
@@ -152,14 +152,14 @@ void monio::Reader::readDatumAtTime(FileData& fileData,
            "An exception occurred while creating data container...");
       }
     } else {
-      oops::Log::debug() << "Reader::readDatumAtTime()> DataContainer \""
+      oops::Log::trace() << "Reader::readDatumAtTime()> DataContainer \""
         << varName << "\" aleady defined." << std::endl;
     }
   }
 }
 
 void monio::Reader::readAllData(FileData& fileData) {
-  oops::Log::debug() << "Reader::readAllData()" << std::endl;
+  oops::Log::trace() << "Reader::readAllData()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     std::vector<std::string> varNames = fileData.getMetadata().getVariableNames();
     readFullData(fileData, varNames);
@@ -168,7 +168,7 @@ void monio::Reader::readAllData(FileData& fileData) {
 
 void monio::Reader::readFullData(FileData& fileData,
                                  const std::vector<std::string>& varNames) {
-  oops::Log::debug() << "Reader::readFullData()" << std::endl;
+  oops::Log::trace() << "Reader::readFullData()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     for (const auto& varName : varNames) {
       readFullDatum(fileData, varName);
@@ -178,7 +178,7 @@ void monio::Reader::readFullData(FileData& fileData,
 
 void monio::Reader::readFullDatum(FileData& fileData,
                                   const std::string& varName) {
-  oops::Log::debug() << "Reader::readFullDatum()" << std::endl;
+  oops::Log::trace() << "Reader::readFullDatum()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     std::shared_ptr<DataContainerBase> dataContainer = nullptr;
     std::shared_ptr<Variable> variable = fileData.getMetadata().getVariable(varName);
@@ -225,7 +225,7 @@ void monio::Reader::readFullDatum(FileData& fileData,
 }
 
 monio::File& monio::Reader::getFile() {
-  oops::Log::debug() << "Reader::getFile()" << std::endl;
+  oops::Log::trace() << "Reader::getFile()" << std::endl;
   if (isOpen() == false) {
     utils::throwException("Reader::getFile()> File has not been initialised...");
   }
@@ -235,7 +235,7 @@ monio::File& monio::Reader::getFile() {
 std::vector<std::shared_ptr<monio::DataContainerBase>> monio::Reader::getCoordData(
                                                              FileData& fileData,
                                                        const std::vector<std::string>& coordNames) {
-  oops::Log::debug() << "Reader::getCoordData()" << std::endl;
+  oops::Log::trace() << "Reader::getCoordData()" << std::endl;
   if (coordNames.size() == 2) {
     std::vector<std::shared_ptr<monio::DataContainerBase>> coordContainers;
     if (mpiCommunicator_.rank() == mpiRankOwner_) {
@@ -256,9 +256,9 @@ std::vector<std::shared_ptr<monio::DataContainerBase>> monio::Reader::getCoordDa
 }
 
 size_t monio::Reader::findTimeStep(const FileData& fileData, const util::DateTime& dateTime) {
-  oops::Log::debug() << "Reader::findTimeStep()" << std::endl;
+  oops::Log::trace() << "Reader::findTimeStep()" << std::endl;
   if (fileData.getDateTimes().size() == 0) {
-    oops::Log::debug() << "Reader::findTimeStep()> Date times not initialised..." << std::endl;
+    oops::Log::trace() << "Reader::findTimeStep()> Date times not initialised..." << std::endl;
     closeFile();
     utils::throwException("Reader::findTimeStep()> Date times not initialised...");
   }

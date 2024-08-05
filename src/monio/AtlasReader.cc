@@ -17,7 +17,7 @@
 monio::AtlasReader::AtlasReader(const eckit::mpi::Comm& mpiCommunicator, const int mpiRankOwner):
     mpiCommunicator_(mpiCommunicator),
     mpiRankOwner_(mpiRankOwner) {
-  oops::Log::debug() << "AtlasReader::AtlasReader()" << std::endl;
+  oops::Log::trace() << "AtlasReader::AtlasReader()" << std::endl;
 }
 
 void monio::AtlasReader::populateFieldWithFileData(atlas::Field& field,
@@ -25,7 +25,7 @@ void monio::AtlasReader::populateFieldWithFileData(atlas::Field& field,
                                              const consts::FieldMetadata& fieldMetadata,
                                              const std::string& readName,
                                              const bool isLfricConvention) {
-  oops::Log::debug() << "AtlasReader::populateFieldWithFileData()" << std::endl;
+  oops::Log::trace() << "AtlasReader::populateFieldWithFileData()" << std::endl;
   atlas::Field readField = getReadField(field, fieldMetadata.noFirstLevel);
   populateFieldWithDataContainer(readField,
                                  fileData.getData().getContainer(readName),
@@ -39,7 +39,7 @@ void monio::AtlasReader::populateFieldWithDataContainer(atlas::Field& field,
                                       const std::vector<size_t>& lfricToAtlasMap,
                                       const bool noFirstLevel,
                                       const bool isLfricConvention) {
-  oops::Log::debug() << "AtlasReader::populateFieldWithDataContainer()" << std::endl;
+  oops::Log::trace() << "AtlasReader::populateFieldWithDataContainer()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     int dataType = dataContainer.get()->getType();
     switch (dataType) {
@@ -75,7 +75,7 @@ void monio::AtlasReader::populateFieldWithDataContainer(atlas::Field& field,
 
 void monio::AtlasReader::populateFieldWithDataContainer(atlas::Field& field,
                                       const std::shared_ptr<DataContainerBase>& dataContainer) {
-  oops::Log::debug() << "AtlasReader::populateFieldWithDataContainer()" << std::endl;
+  oops::Log::trace() << "AtlasReader::populateFieldWithDataContainer()" << std::endl;
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     int dataType = dataContainer.get()->getType();
     switch (dataType) {
@@ -112,7 +112,7 @@ void monio::AtlasReader::populateField(atlas::Field& field,
                                  const std::vector<size_t>& lfricToAtlasMap,
                                  const bool noFirstLevel,
                                  const bool isLfricConvention) {
-  oops::Log::debug() << "AtlasReader::populateField()" << std::endl;
+  oops::Log::trace() << "AtlasReader::populateField()" << std::endl;
   auto fieldView = atlas::array::make_view<T, 2>(field);
   // Field with noFirstLevel == true should have been adjusted to have 70 levels.
   atlas::idx_t numLevels = field.shape(consts::eVertical);
@@ -175,7 +175,7 @@ template void monio::AtlasReader::populateField<int>(atlas::Field& field,
 template<typename T>
 void monio::AtlasReader::populateField(atlas::Field& field,
                                        const std::vector<T>& dataVec) {
-  oops::Log::debug() << "AtlasReader::populateField()" << std::endl;
+  oops::Log::trace() << "AtlasReader::populateField()" << std::endl;
 
   std::vector<atlas::idx_t> fieldShape = field.shape();
   if (field.metadata().get<bool>("global") == false) {

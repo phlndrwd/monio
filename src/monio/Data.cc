@@ -35,7 +35,7 @@ template<typename T> bool compareData(std::vector<T>& lhsVec, std::vector<T>& rh
 }  // anonymous namespace
 
 monio::Data::Data() {
-  oops::Log::debug() << "Data::Data()" << std::endl;
+  oops::Log::trace() << "Data::Data()" << std::endl;
 }
 
 bool monio::operator==(const monio::Data& lhs, const monio::Data& rhs) {
@@ -100,7 +100,7 @@ bool monio::operator==(const monio::Data& lhs, const monio::Data& rhs) {
 }
 
 void monio::Data::addContainer(std::shared_ptr<DataContainerBase> container) {
-  oops::Log::debug() << "Data::addContainer()" << std::endl;
+  oops::Log::trace() << "Data::addContainer()" << std::endl;
   const std::string& name = container->getName();
   auto it = dataContainers_.find(name);
   if (it == dataContainers_.end()) {
@@ -109,7 +109,7 @@ void monio::Data::addContainer(std::shared_ptr<DataContainerBase> container) {
 }
 
 void monio::Data::deleteContainer(const std::string& name) {
-  oops::Log::debug() << "Data::deleteContainer()" << std::endl;
+  oops::Log::trace() << "Data::deleteContainer()" << std::endl;
   auto it = dataContainers_.find(name);
   if (it != dataContainers_.end()) {
     dataContainers_.erase(name);
@@ -117,7 +117,7 @@ void monio::Data::deleteContainer(const std::string& name) {
 }
 
 void monio::Data::removeAllButTheseContainers(const std::vector<std::string>& names) {
-  oops::Log::debug() << "Data::removeAllButTheseContainers()" << std::endl;
+  oops::Log::trace() << "Data::removeAllButTheseContainers()" << std::endl;
   std::vector<std::string> containerKeys = utils::extractKeys(dataContainers_);
   for (const std::string& containerKey : containerKeys) {
     if (utils::findInVector(names, containerKey) == false) {
@@ -127,7 +127,7 @@ void monio::Data::removeAllButTheseContainers(const std::vector<std::string>& na
 }
 
 bool monio::Data::isContainerPresent(const std::string& name) const {
-  oops::Log::debug() << "Data::isContainerPresent()" << std::endl;
+  oops::Log::trace() << "Data::isContainerPresent()" << std::endl;
   auto it = dataContainers_.find(name);
   if (it != dataContainers_.end()) {
     return true;
@@ -138,7 +138,7 @@ bool monio::Data::isContainerPresent(const std::string& name) const {
 
 std::shared_ptr<monio::DataContainerBase>
                 monio::Data::getContainer(const std::string& name) const {
-  oops::Log::debug() << "Data::getContainer()" << std::endl;
+  oops::Log::trace() << "Data::getContainer()" << std::endl;
   auto it = dataContainers_.find(name);
   if (it != dataContainers_.end()) {
     return it->second;
@@ -150,22 +150,22 @@ std::shared_ptr<monio::DataContainerBase>
 
 std::map<std::string, std::shared_ptr<monio::DataContainerBase>>&
                                       monio::Data::getContainers() {
-  oops::Log::debug() << "Data::getContainers()" << std::endl;
+  oops::Log::trace() << "Data::getContainers()" << std::endl;
   return dataContainers_;
 }
 
 const std::map<std::string, std::shared_ptr<monio::DataContainerBase>>&
                                             monio::Data::getContainers() const {
-  oops::Log::debug() << "Data::getContainers()" << std::endl;
+  oops::Log::trace() << "Data::getContainers()" << std::endl;
   return dataContainers_;
 }
 
 std::vector<std::string> monio::Data::getDataContainerNames() const {
-  oops::Log::debug() << "Data::getDataContainerNames()" << std::endl;
+  oops::Log::trace() << "Data::getDataContainerNames()" << std::endl;
   return utils::extractKeys(dataContainers_);
 }
 
 void monio::Data::clear() {
-  oops::Log::debug() << "Data::clear()" << std::endl;
+  oops::Log::trace() << "Data::clear()" << std::endl;
   dataContainers_.clear();
 }
