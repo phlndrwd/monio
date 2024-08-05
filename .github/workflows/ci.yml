@@ -72,8 +72,8 @@ jobs:
             'ngmssboxjediacr.azurecr.io/jedibase:alma9'
 
       - name: Cleanup
-          working-directory: ${{github.workspace}}
-          run: rm -fr ${{ env.PR }} || true
+        working-directory: ${{github.workspace}}
+        run: rm -fr ${{ env.PR }} || true
 
 
   build2:
