@@ -67,6 +67,7 @@ jobs:
             --name ${REPO}_${PR}_${GITHUB_SHA::7} \
             --volume ${{ github.workspace }}/${PR}:${WORKDIR} \
             --volume ${{ github.workspace }}/mobb-data:${MOBB_DATA} \
+            --env MOBB_DATA=${MOBB_DATA} \
             --env CI_TESTS=1 \
             --workdir=${WORKDIR} \
             --entrypoint=${WORKDIR}/build-and-test.sh \
