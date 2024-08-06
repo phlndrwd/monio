@@ -1,3 +1,4 @@
+# ci.yml
 ---
 name: CI
 
@@ -5,135 +6,162 @@ on:
   pull_request:
     branches: [develop]
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/develop' }}
+
 env:
   REPO: ${{ github.event.repository.name }}
-  BUNDLE: pr-${{ github.event.number }}  
+  PR: pr-${{ github.event.number }}
+  GH_TOKEN: ${{ secrets.GH_PAT }}
 
-jobs:  
+
+jobs:
   build1:
-    if: github.repository_owner == 'MetOffice'
-    name: gnu 11.3.1 (UKMO)    
+    if: |
+      ( github.repository_owner == 'MetOffice' && github.event.pull_request.draft == false )
+    name: gnu-openmpi (UKMO)
     runs-on: jedi-self-hosted-rg
 
-    steps:          
-      - name: pre-submit cleanup
+    steps:
+      - name: Pre-submit cleanup
         run: |
+          rm -fr ./${{ env.PR }} || true
           ls -la ./
-          rm -fr ./${{ env.BUNDLE }} || true
-          ls -la ./
-      - name: checkout current
+      - name: Checkout ${{ env.REPO }}
         uses: actions/checkout@v4
         with:
-          path: ./${{ env.BUNDLE }}/${{ env.REPO }}
-      - name: initiate bundle
-        run: cp ./${{ env.BUNDLE }}/${{ env.REPO }}/ci/* ./${{ env.BUNDLE }}/
+          path: ./${{ env.PR }}/${{ env.REPO }}
+      - name: Initiate bundle
+        working-directory: ./${{ env.PR }}
+        run: ln -sf ./${{ env.REPO }}/ci/* .
 
-      - name: checkout jedicmake
+      - name: Checkout jedicmake
         uses: actions/checkout@v4
         with:
-          path: ./${{ env.BUNDLE }}/jedicmake
+          path: ./${{ env.PR }}/jedicmake
           repository: JCSDA-internal/jedi-cmake
           submodules: true
           token: ${{ secrets.GH_PAT }}
 
-      - name: checkout oops
+      - name: Checkout oops
         uses: actions/checkout@v4
         with:
-          path: ./${{ env.BUNDLE }}/oops
+          path: ./${{ env.PR }}/oops
           repository: JCSDA-internal/oops
           token: ${{ secrets.GH_PAT }}
-      - name: matching branch checkout attempt oops ${{ github.head_ref }}
+      - name: Check build-group for oops
         if: github.event_name == 'pull_request'
-        run: ./${{ env.BUNDLE }}/get-ref-branch ./${{ env.BUNDLE }}/oops
+        run: ./${{ env.PR }}/check-build-group.sh ./${{ env.PR }}/oops
 
-      - name: build and test
+      - name: Build and Test
         env:
-          MOBB_DATA: ${{ github.workspace }}/MOBB_DATA
+          WORKDIR: /var/tmp/${{ env.REPO }}/${{ env.PR }}
+          MOBB_DATA: /var/tmp/mobb-data
+        shell: bash
         run: |
-          az acr login --name ngmssboxjediacr          
-          ln -sfT /testdata/model-interface-data ${MOBB_DATA}
+          az acr login --name ngmssboxjediacr
+          ln -sf /testdata/mobb-data -t ${{ github.workspace }}
+
           docker run --rm \
-            --entrypoint=/usr/local/src/${REPO}/${BUNDLE}/build-and-test \
-            --workdir=/usr/local/src/${REPO}/${BUNDLE} \
-            --volume ${PWD}/${BUNDLE}:/usr/local/src/${REPO}/${BUNDLE} \
-            --volume ${MOBB_DATA}:/var/tmp/MOBB_DATA \
-            'ngmssboxjediacr.azurecr.io/jedibase:alma9' \
-          && rm -fr ${{ github.workspace }}/${{ env.BUNDLE }}
+            --name ${REPO}_${PR}_${GITHUB_SHA::7} \
+            --volume ${{ github.workspace }}/${PR}:${WORKDIR} \
+            --volume ${{ github.workspace }}/mobb-data:${MOBB_DATA} \
+            --env MOBB_DATA=${MOBB_DATA} \
+            --env CI_TESTS=1 \
+            --workdir=${WORKDIR} \
+            --entrypoint=${WORKDIR}/build-and-test.sh \
+            'ngmssboxjediacr.azurecr.io/jedibase:alma9'
+
+      - name: Cleanup
+        working-directory: ${{github.workspace}}
+        run: rm -fr ${{ env.PR }} || true
+
 
   build2:
-    if: '! github.event.pull_request.draft'
-    name: gnu 9.4.0 (JCSDA)    
+    if: |
+      ( github.repository_owner == 'MetOffice' && github.event.pull_request.draft == false )
+    name: gnu-openmpi (JCSDA)
     runs-on: ubuntu-latest
 
     steps:
       - name: checkout current
         uses: actions/checkout@v4
         with:
-          path: ./${{ env.BUNDLE }}/${{ env.REPO }}
-      - name: initiate bundle
-        run: cp ./${{ env.BUNDLE }}/${{ env.REPO }}/ci/* ./${{ env.BUNDLE }}/
+          path: ./${{ env.PR }}/${{ env.REPO }}
+      - name: Initiate bundle
+        run: cp ./${{ env.PR }}/${{ env.REPO }}/ci/* ./${{ env.PR }}/
 
       - name: checkout jedicmake
         uses: actions/checkout@v4
         with:
-          path: ./${{ env.BUNDLE }}/jedicmake
+          path: ./${{ env.PR }}/jedicmake
           repository: JCSDA-internal/jedi-cmake
-          submodules: true
+          submodules: recursive
           token: ${{ secrets.GH_PAT }}
 
       - name: checkout oops
         uses: actions/checkout@v4
         with:
-          path: ./${{ env.BUNDLE }}/oops
+          path: ./${{ env.PR }}/oops
           repository: JCSDA-internal/oops
           token: ${{ secrets.GH_PAT }}
-      - name: matching branch checkout attempt oops ${{ github.head_ref }}
+      - name: Check build-group for oops
         if: github.event_name == 'pull_request'
-        run: ./${{ env.BUNDLE }}/get-ref-branch ./${{ env.BUNDLE }}/oops
+        run: ./${{ env.PR }}/check-build-group.sh ./${{ env.PR }}/oops
 
-      - name: build and lint
+      - name: Build and Lint
+        env:
+          WORKDIR: /usr/local/src/${{ env.REPO }}/${{ env.PR }}
+
         run: |
           docker run --rm \
-            --entrypoint=/usr/local/src/${REPO}/${BUNDLE}/build-and-lint \
-            --workdir=/usr/local/src/${REPO}/${BUNDLE} \
-            --volume ${PWD}/${BUNDLE}:/usr/local/src/${REPO}/${BUNDLE} \
+            --volume ${PWD}/${PR}:${WORKDIR} \
+            --env CI_TESTS=0 \
+            --workdir=${WORKDIR} \
+            --entrypoint=${WORKDIR}/build-and-test.sh \
             'jcsda/docker-gnu-openmpi-dev:latest'
 
   build3:
-    if: '! github.event.pull_request.draft'
-    name: clang 10.0.0 (JCSDA)    
+    if: |
+      ( github.repository_owner == 'MetOffice' && github.event.pull_request.draft == false )
+    name: clang-mpich (JCSDA)
     runs-on: ubuntu-latest
 
     steps:
       - name: checkout current
         uses: actions/checkout@v4
         with:
-          path: ./${{ env.BUNDLE }}/${{ env.REPO }}
-      - name: initiate bundle
-        run: cp ./${{ env.BUNDLE }}/${{ env.REPO }}/ci/* ./${{ env.BUNDLE }}/
+          path: ./${{ env.PR }}/${{ env.REPO }}
+      - name: initiate PR
+        run: cp ./${{ env.PR }}/${{ env.REPO }}/ci/* ./${{ env.PR }}/
 
       - name: checkout jedicmake
         uses: actions/checkout@v4
         with:
-          path: ./${{ env.BUNDLE }}/jedicmake
+          path: ./${{ env.PR }}/jedicmake
           repository: JCSDA-internal/jedi-cmake
-          submodules: true
+          submodules: recursive
           token: ${{ secrets.GH_PAT }}
 
-      - name: checkout oops
+      - name: Checkout oops
         uses: actions/checkout@v4
         with:
-          path: ./${{ env.BUNDLE }}/oops
+          path: ./${{ env.PR }}/oops
           repository: JCSDA-internal/oops
           token: ${{ secrets.GH_PAT }}
-      - name: matching branch checkout attempt oops ${{ github.head_ref }}
+      - name: Check build-group for oops
         if: github.event_name == 'pull_request'
-        run: ./${{ env.BUNDLE }}/get-ref-branch ./${{ env.BUNDLE }}/oops
+        run: ./${{ env.PR }}/check-build-group.sh ./${{ env.PR }}/oops
 
-      - name: build and lint
+      - name: Build and Lint
+        env:
+          WORKDIR: /usr/local/src/${{ env.REPO }}/${{ env.PR }}
+
         run: |
           docker run --rm \
-            --entrypoint=/usr/local/src/${REPO}/${BUNDLE}/build-and-lint \
-            --workdir=/usr/local/src/${REPO}/${BUNDLE} \
-            --volume ${PWD}/${BUNDLE}:/usr/local/src/${REPO}/${BUNDLE} \
+            --volume ${PWD}/${PR}:${WORKDIR} \
+            --env CI_TESTS=0 \
+            --workdir=${WORKDIR} \
+            --entrypoint=${WORKDIR}/build-and-test.sh \
             'jcsda/docker-clang-mpich-dev:latest'

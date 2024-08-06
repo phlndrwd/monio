@@ -45,10 +45,13 @@ if(IS_DIRECTORY "${MONIO_TESTFILES_DIR}")
     "${CMAKE_CURRENT_BINARY_DIR}/Data"
     SYMBOLIC
   )
-else()
-  message(WARNING "MONIO_TESTFILES_DIR=${MONIO_TESTFILES_DIR}: no such directory")
-  return()
 endif()
+# else()
+#   message(WARNING
+#     "MONIO_TESTFILES_DIR=${MONIO_TESTFILES_DIR}: no such directory: \
+#     Skipping tests that require test files.")
+#   return()
+# endif()
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/DataOut)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testinput)
@@ -70,6 +73,13 @@ ecbuild_add_test(TARGET monio_coding_norms
                  ARGS --quiet --recursive
                        ${PROJECT_SOURCE_DIR}/src
                        ${PROJECT_SOURCE_DIR}/test)
+
+if(NOT IS_DIRECTORY "${MONIO_TESTFILES_DIR}")
+  message(WARNING
+    "MONIO_TESTFILES_DIR=${MONIO_TESTFILES_DIR}: no such directory.\
+    Skipping tests that require test files.")
+  return()
+endif()
 
 ecbuild_add_test(TARGET  test_monio_fieldset_write
                  SOURCES mains/TestFieldSetWrite.cc
