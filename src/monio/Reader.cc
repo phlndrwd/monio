@@ -274,13 +274,11 @@ size_t monio::Reader::findTimeStep(const FileData& fileData, const util::DateTim
   std::stringstream msgStream;
   msgStream << "Reader::findTimeStep()> DateTime specified not located in file..." << std::endl
             << "  Time specified: " << dateTime.toString() << std::endl
-            << "  Times available: {";
+            << "  Times available:" << std::endl;
 
   for (const auto& time : fileData.getDateTimes()) {
-    msgStream << time.toString() << ", " << std::endl
-              << "                    ";
+    msgStream << "  -" << time.toString() << std::endl;
   }
-  msgStream << "}" << std::endl;
 
   utils::throwException(msgStream.str());
 }
