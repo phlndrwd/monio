@@ -277,7 +277,7 @@ size_t monio::Reader::findTimeStep(const FileData& fileData, const util::DateTim
             << "  Times available:" << std::endl;
 
   for (const auto& time : fileData.getDateTimes()) {
-    msgStream << "  -" << time.toString() << std::endl;
+    msgStream << "  - " << time.toString() << std::endl;
   }
 
   utils::throwException(msgStream.str());
