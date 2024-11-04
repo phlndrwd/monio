@@ -55,7 +55,7 @@ void monio::Writer::closeFile() {
   if (mpiCommunicator_.rank() == mpiRankOwner_) {
     if (isOpen() == true) {
       getFile().close();
-      file_.release();
+      file_.reset();
     }
   }
 }

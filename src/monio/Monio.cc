@@ -319,8 +319,12 @@ void monio::Monio::writeFieldSet(const atlas::FieldSet& localFieldSet,
 
 void monio::Monio::closeFiles() {
   oops::Log::trace() << "Monio::closeFiles()" << std::endl;
-  reader_.closeFile();
-  writer_.closeFile();
+  if (reader_.isOpen() == true) {
+    reader_.closeFile();
+  }
+  if (writer_.isOpen() == true) {
+    writer_.closeFile();
+  }
 }
 
 int monio::Monio::initialiseFile(const atlas::Grid& grid,
