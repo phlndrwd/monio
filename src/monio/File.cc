@@ -53,8 +53,10 @@ void monio::File::close() {
   } else if (fileMode_ == netCDF::NcFile::write) {
     oops::Log::debug() << "write" << std::endl;
   }
-  getFile().close();
-  dataFile_.release();
+  if (dataFile_ != nullptr) {
+    getFile().close();
+    dataFile_.reset();
+  }
 }
 // Reading functions ///////////////////////////////////////////////////////////////////////////////
 
